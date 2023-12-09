@@ -3,21 +3,15 @@ const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const instance = require('../config/firebase');
 const response = require('../middleware/response');
-
-
-const router = express.Router();
-const db = instance.db;
-const auth = instance.auth;
-
+const { bucket, upload, db, auth } = require('../config/firebase');
 // Multer configuration for handling file uploads
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
 
 // @desc Add New Story
 // @route POST /stories
 // @access private ( requires token )
 
-router.post('/addStories', upload.single('photo'), async (req, res) => {
+const userAddStories = (async (req, res) => {
     try {
         // Check if the authorization header is present
         const authHeader = req.headers.authorization;
@@ -57,23 +51,42 @@ router.post('/addStories', upload.single('photo'), async (req, res) => {
 
         // Here, you can process the photo, save it to storage, and get a URL
         // For simplicity, let's assume you save it to a variable called photoURL
-        const photoURL = 'gs://testing-406904.appspot.com';
-
-        // Save the new story to the database
-        await db.collection('stories').add({
-            uid: uid,
-            description: description,
-            photoURL: photo,
-            lat: lat || null,
-            lon: lon || null,
-            createdAt: new Date(),
+        const filename = `stories/${Date.now()}_${photo.originalname}`;
+        const file = bucket.file(filename);
+        const stream = file.createWriteStream({
+            metadata: {
+                contentType: photo.mimetype,
+            },
         });
 
-        response(200, { error: false, message: "success" }, "Story added successfully", res);
+        stream.on('error', (err) => {
+            console.error(err);
+            response(500, err, "Failed to upload photo", res);
+        });
+
+        stream.on('finish', async () => {
+            // Get the public URL of the uploaded photo
+            const photoURL = `gs://testing-406904.appspot.com/${filename}`;
+
+            // Save the new story to the database
+            await db.collection('stories').add({
+                uid: uid,
+                description: description,
+                photoURL: photoURL,
+                lat: lat || null,
+                lon: lon || null,
+                createdAt: new Date(),
+            });
+
+            response(200, { error: false, message: "success" }, "Story added successfully", res);
+        });
+
+        // Pipe the photo data to the Cloud Storage file stream
+        stream.end(photo.buffer);
     } catch (error) {
         console.error(error);
         response(400, error, "Failed to add new story", res);
     }
 });
 
-module.exports = router;
+module.exports = userAddStories;

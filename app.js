@@ -16,7 +16,7 @@ app.use('/v1/auth', require('./src/routes/auth'))
 app.use('/v1/dashboard', require('./src/routes/dashboard'))
 // 3. addStory
 const storiesRouter = require('./src/routes/addStories') // Make sure the path is correct
-app.use('/v1/addStories', storiesRouter);
+app.use('/v1/stories', storiesRouter);
 
 // Jalanin Server
 const port = 8080

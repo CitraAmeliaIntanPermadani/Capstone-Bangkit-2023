@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
+// Import multer for handling file uploads
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+
 // Import the controller for stories
 const addStoryController = require('../controllers/addStories');
 
-// Define routes for stories
-router.route('/').post(addStoryController);
+// Define route for adding a story
+router.post('/add', upload.single('photo'), addStoryController);
 
 module.exports = router
