@@ -1,2 +1,26 @@
-runtime: nodejs18
-service: backend
+runtime: nodejs18  # You can choose the appropriate Node.js runtime version
+
+env_variables:
+  NODE_ENV: production
+
+handlers:
+- url: /v1/auth
+  script: auto
+
+- url: /v1/dashboard
+  script: auto
+
+- url: /v1/stories/.*
+  script: auto
+
+- url: /v1/guest/.*
+  script: auto
+
+- url: /v1/allStories
+  script: auto
+
+- url: /v1/detailStories
+  script: auto
+
+- url: /.*
+  script: auto
