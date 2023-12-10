@@ -20,6 +20,8 @@ app.use('/v1/stories', storiesRouter);
 // 4. guestAccount
 const guestStoriesRouter = require('./src/routes/guestStories');
 app.use('/v1/guest', guestStoriesRouter);
+// 5. getAllStories
+app.use('/v1/allStories', require('./src/routes/getAllStories'));
 
 // Jalanin Server
 const port = 8080
