@@ -21,7 +21,6 @@ const userAddStories = (async (req, res) => {
 
         const customToken = authHeader.split('Bearer ')[1];
 
-        // Assume the customToken is trusted since it's generated securely on the server.
         // Directly decode it without verification.
         const decodedToken = jwt.decode(customToken);
 
@@ -71,6 +70,7 @@ const userAddStories = (async (req, res) => {
             // Save the new story to the database
             await db.collection('stories').add({
                 uid: uid,
+                name : req.body.username,
                 description: description,
                 photoURL: photoURL,
                 lat: lat || null,
