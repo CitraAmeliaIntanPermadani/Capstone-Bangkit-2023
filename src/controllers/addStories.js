@@ -70,7 +70,6 @@ const userAddStories = (async (req, res) => {
             // Save the new story to the database
             await db.collection('stories').add({
                 uid: uid,
-                name : req.body.username,
                 description: description,
                 photoURL: photoURL,
                 lat: lat || null,
