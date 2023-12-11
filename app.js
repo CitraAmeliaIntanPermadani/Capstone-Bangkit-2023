@@ -10,6 +10,9 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Route ...
+app.get('/', (req,res) => {
+    res.send('It is US, MicroBizMate - anonymous dev')
+})
 // 1. auth
 app.use('/v1/auth', require('./src/routes/auth'))
 // 2. Dashboard
@@ -24,7 +27,6 @@ app.use('/v1/guest', guestStoriesRouter);
 app.use('/v1/allStories', require('./src/routes/getAllStories'));
 // 6. getDetailStories
 app.use('/v1/detailStories', require('./src/routes/getDetailStories'));
-
 
 // Jalanin Server
 const port = 8080
