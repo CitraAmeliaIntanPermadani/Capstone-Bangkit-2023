@@ -1,6 +1,5 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const response = require('../middleware/response');
 const { db } = require('../config/firebase');
 
 const router = express.Router();
@@ -24,7 +23,7 @@ const getDetailStories = async (req, res) => {
         const decodedToken = jwt.decode(customToken);
 
         if (!decodedToken || !decodedToken.uid) {
-            return response(403, null, "Invalid custom token", res);
+            return res.status(403).json({ error: true, message: "Invalid custom token" });
         }
 
         const uid = decodedToken.uid;
@@ -35,7 +34,7 @@ const getDetailStories = async (req, res) => {
         const storyDoc = await db.collection('stories').doc(storyId).get();
 
         if (!storyDoc.exists) {
-            return response(404, null, "Story not found", res);
+            return res.status(404).json({ error: true, message: "Story not found" });
         }
 
         const storyData = storyDoc.data();
@@ -49,7 +48,7 @@ const getDetailStories = async (req, res) => {
 
             const story = {
                 id: storyDoc.id,
-                username: userName, // Include the username
+                name: userName, // Include the name
                 description: storyData.description,
                 photoUrl: storyData.photoURL,
                 createdAt: storyData.createdAt.toDate(),
@@ -57,14 +56,14 @@ const getDetailStories = async (req, res) => {
                 lon: storyData.lon
             };
 
-            response(200, { error: false, message: "Story fetched successfully", story }, null, res);
+            res.status(200).json({ error: false, message: "Story fetched successfully", story });
         } else {
             // Handle the case where the user's document is not found
-            response(404, null, "User not found", res);
+            res.status(404).json({ error: true, message: "User not found" });
         }
     } catch (error) {
         console.error(error);
-        response(500, error, "Failed to fetch story details", res);
+        res.status(500).json({ error: true, message: "Failed to fetch story details" });
     }
 };
 

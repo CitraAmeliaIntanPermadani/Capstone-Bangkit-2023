@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt')
-const response = require('../middleware/response')
 const instance = require('../config/firebase')
 
 // firestore and auth
@@ -41,11 +40,10 @@ const register = async (req, res) => {
             password: hashedPassword
         }) 
             .then(() => {
-                response(201,sendUserAuth,"User Created Successfully",res)
-                console.log('Success Create User');
+                res.status(201).json({ error: false, message: "User Created" });
             })
     } catch (error) {
-        response(400,error,"Failed To Create User",res)
+        res.status(400).json({ error: true, message: "Failed To Create User" });
         console.log(error);
     }
 }
@@ -83,13 +81,27 @@ const login = async (req, res) => {
         const token = await auth.createCustomToken(userRecord.uid);
 
         // 5. Send the token in the response
-        response(200, { token }, "Login successful", res);
-    } catch (error) {
-        response(400, error, "Failed to login", res);
-        console.error(error);
-    }
-}
+        const loginResult = {
+            userId: userRecord.uid,
+            name: userDoc.data().name,
+            token: token
+        };
 
+        // 6. Send the token in the response
+        res.json({
+            error: false,
+            message: "success",
+            loginResult: {
+                userId: userRecord.uid,
+                name: userDoc.data().name,
+                token: token
+            }
+        });
+    } catch (error) {
+        res.status(400).json({ error: true, message: error.message });
+        console.log(error);
+    }
+    };
 
 module.exports = {
     register,

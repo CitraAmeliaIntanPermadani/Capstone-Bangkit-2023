@@ -1,6 +1,5 @@
 const express = require('express');
 const multer = require('multer');
-const response = require('../middleware/response');
 const { bucket, upload, db } = require('../config/firebase');
 
 const storage = multer.memoryStorage();
@@ -12,7 +11,7 @@ const uploadMiddleware = multer({ storage: storage });
 
 const addGuestStory = uploadMiddleware.single('photo');
 
-const guestAddStories = (async (req, res) => {
+const guestAddStories = async (req, res) => {
     try {
         // Access form fields from the request body
         const description = req.body.description;
@@ -22,7 +21,7 @@ const guestAddStories = (async (req, res) => {
         // Handle the uploaded photo
         const photo = req.file;
         if (!photo) {
-            return response(400, null, "Photo is required", res);
+            return res.status(400).json({ error: true, message: "Photo is required" });
         }
 
         // Here, you can process the photo, save it to storage, and get a URL
@@ -37,12 +36,12 @@ const guestAddStories = (async (req, res) => {
 
         stream.on('error', (err) => {
             console.error(err);
-            response(500, err, "Failed to upload photo", res);
+            res.status(500).json({ error: true, message: "Failed to upload photo" });
         });
 
         stream.on('finish', async () => {
             // Get the public URL of the uploaded photo
-            const photoURL = `gs://testing-406904.appspot.com/${filename}`;
+            const photoURL = `gs://microbizmate.appspot.com${filename}`;
 
             // Save the new story to the database
             await db.collection('stories').add({
@@ -53,15 +52,15 @@ const guestAddStories = (async (req, res) => {
                 createdAt: new Date(),
             });
 
-            response(200, { error: false, message: "success" }, "Story added successfully", res);
+            res.status(200).json({ error: false, message: "success" });
         });
 
         // Pipe the photo data to the Cloud Storage file stream
         stream.end(photo.buffer);
     } catch (error) {
         console.error(error);
-        response(400, error, "Failed to add new story", res);
+        res.status(400).json({ error: true, message: "Failed to add new story" });
     }
-});
+};
 
 module.exports = { guestAddStories, addGuestStory };

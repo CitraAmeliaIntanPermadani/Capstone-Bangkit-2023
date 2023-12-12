@@ -2,7 +2,6 @@ const express = require('express');
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const instance = require('../config/firebase');
-const response = require('../middleware/response');
 const { bucket, upload, db, auth } = require('../config/firebase');
 // Multer configuration for handling file uploads
 const storage = multer.memoryStorage();
@@ -65,7 +64,7 @@ const userAddStories = (async (req, res) => {
 
         stream.on('finish', async () => {
             // Get the public URL of the uploaded photo
-            const photoURL = `gs://testing-406904.appspot.com/${filename}`;
+            const photoURL = `gs://microbizmate.appspot.com${filename}`;
 
             // Save the new story to the database
             await db.collection('stories').add({
@@ -77,14 +76,16 @@ const userAddStories = (async (req, res) => {
                 createdAt: new Date(),
             });
 
-            response(200, { error: false, message: "success" }, "Story added successfully", res);
+            res.status(200).json({ error: false, message: "success" });
+
         });
 
         // Pipe the photo data to the Cloud Storage file stream
         stream.end(photo.buffer);
     } catch (error) {
         console.error(error);
-        response(400, error, "Failed to add new story", res);
+        res.status(400).json({ error: true, message: "Failed to add new story" });
+        console.log(error);
     }
 });
 

@@ -2,7 +2,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-app = express()
+const app = express()
 
 // Baru kita pake
 app.use(express.urlencoded({extended:true}))
