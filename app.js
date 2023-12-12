@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 
 // Route ...
 app.get('/', (req,res) => {
-    res.send('It is US, MicroBizMate - anonymous dev')
+    res.send('It is US, MicroBizMate - new dev')
 })
 // 1. auth
 app.use('/v1/auth', require('./src/routes/auth'))
