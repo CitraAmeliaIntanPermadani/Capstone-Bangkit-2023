@@ -13,7 +13,7 @@ const register = async (req, res) => {
     try {
         // 1. Ambil data dari frontend
         const userData = {
-            name : req.body.username, // sintia
+            name : req.body.name, // sintia
             email : req.body.email, // sintia@gmail.com
             password : req.body.password // 123
         }
@@ -65,7 +65,7 @@ const login = async (req, res) => {
         // nama, email, pw, uid
 
         if (!userDoc.exists) {
-            return response(401, null, "Invalid credentials", res);
+            return response(401, "Invalid credentials", res);
         }
 
         const hashedPassword = userDoc.data().password;
@@ -74,7 +74,7 @@ const login = async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, hashedPassword || '');
 
         if (!isPasswordValid) {
-            return response(401, null, "Invalid credentials", res);
+            return response(401, "Invalid credentials", res);
         }
 
         // 4. Generate a JWT token for the authenticated user

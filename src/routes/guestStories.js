@@ -9,6 +9,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 const guestAddStoryController = require('../controllers/guestStories');
 
 // Define route for adding a story with a guest account
-router.post('/add', upload.single('photo'), guestAddStoryController.guestAddStories);
+router.post('/', upload.single('photo'), guestAddStoryController.guestAddStories);
 
 module.exports = router;

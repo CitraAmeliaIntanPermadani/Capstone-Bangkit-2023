@@ -9,6 +9,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 const addStoryController = require('../controllers/addStories');
 
 // Define route for adding a story
-router.post('/add', upload.single('photo'), addStoryController);
+router.post('/', upload.single('photo'), addStoryController);
 
 module.exports = router

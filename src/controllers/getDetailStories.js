@@ -47,7 +47,7 @@ const getDetailStories = async (req, res) => {
             const userName = userData.name;
 
             const story = {
-                id: storyDoc.id,
+                id: storyId,
                 name: userName, // Include the name
                 description: storyData.description,
                 photoUrl: storyData.photoURL,

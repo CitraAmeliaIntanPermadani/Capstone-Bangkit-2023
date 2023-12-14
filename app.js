@@ -22,11 +22,11 @@ const storiesRouter = require('./src/routes/addStories') // Make sure the path i
 app.use('/v1/stories', storiesRouter);
 // 4. guestAccount
 const guestStoriesRouter = require('./src/routes/guestStories');
-app.use('/v1/guest', guestStoriesRouter);
+app.use('/v1/stories/guest', guestStoriesRouter);
 // 5. getAllStories
-app.use('/v1/allStories', require('./src/routes/getAllStories'));
+app.use('/v1/stories', require('./src/routes/getAllStories'));
 // 6. getDetailStories
-app.use('/v1/detailStories', require('./src/routes/getDetailStories'));
+app.use('/v1/stories', require('./src/routes/getDetailStories'));
 
 // Jalanin Server
 const port = 8080
