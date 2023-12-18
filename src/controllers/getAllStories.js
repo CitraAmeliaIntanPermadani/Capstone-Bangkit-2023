@@ -8,6 +8,8 @@ const router = express.Router();
 // @route GET /stories
 // @access private (requires token)
 
+// ...
+
 const getAllStories = async (req, res) => {
     try {
         // Check if the authorization header is present
@@ -29,50 +31,61 @@ const getAllStories = async (req, res) => {
         const uid = decodedToken.uid;
 
         try {
-            // Fetch the user's document to get the name
-            const userDoc = await db.collection('users').doc(uid).get();
+            // Access query parameters
+            const page = parseInt(req.query.page) || 1;
+            const size = parseInt(req.query.size) || 10;
+            const location = parseInt(req.query.location) || 0;
 
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                const userName = userData.name;
+            // Fetch stories based on location
+            let storiesRef = db.collection('stories');
 
-                // Access query parameters
-                const page = parseInt(req.query.page) || 1;
-                const size = parseInt(req.query.size) || 10;
-                const location = parseInt(req.query.location) || 0;
-
-                // Fetch stories based on location
-                let storiesRef = db.collection('stories');
-
-                if (location === 1) {
-                    storiesRef = storiesRef.where('lat', '!=', null).where('lon', '!=', null);
-                }
-
-                const snapshot = await storiesRef.orderBy('createdAt', 'desc').limit(size).offset((page - 1) * size).get();
-
-                const listStory = [];
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    listStory.push({
-                        id: doc.id,
-                        name: userName, // Include the user's name
-                        description: data.description,
-                        photoUrl: data.photoURL,
-                        createdAt: data.createdAt.toDate(),
-                        lat: data.lat,
-                        lon: data.lon
-                    });
-                });
-
-                res.status(200).json({ error: false, message: "Stories fetched successfully", listStory });
-            } else {
-                // Handle the case where the user's document is not found
-                res.status(404).json({ error: true, message: "User not found" });
+            if (location === 1) {
+                storiesRef = storiesRef.where('lat', '!=', null).where('lon', '!=', null);
             }
+
+            const snapshot = await storiesRef.orderBy('createdAt', 'desc').limit(size).offset((page - 1) * size).get();
+
+            const listStory = [];
+
+            for (const doc of snapshot.docs) {
+                const data = doc.data();
+
+                // Check if data.uid exists and is a non-empty string
+                if (data.uid && typeof data.uid === 'string') {
+                    // Fetch the user's document to get the name for each story
+                    const userDoc = await db.collection('users').doc(data.uid).get();
+
+                    if (userDoc.exists) {
+                        const userName = userDoc.data().name;
+
+                        listStory.push({
+                            id: doc.id,
+                            name: userName,
+                            description: data.description,
+                            photoUrl: data.photoURL,
+                            createdAt: data.createdAt.toDate(),
+                            lat: data.lat,
+                            lon: data.lon
+                        });
+                    } else {
+                        // Handle the case where the user's document is not found
+                        listStory.push({
+                            id: doc.id,
+                            name: 'Unknown',
+                            description: data.description,
+                            photoUrl: data.photoURL,
+                            createdAt: data.createdAt.toDate(),
+                            lat: data.lat,
+                            lon: data.lon
+                        });
+                    }
+                } 
+            }
+
+            res.status(200).json({ error: false, message: "Stories fetched successfully", listStory });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: true, message: "Failed to fetch user data" });
+            res.status(500).json({ error: true, message: "Failed to fetch stories" });
         }
     } catch (error) {
         console.error(error);

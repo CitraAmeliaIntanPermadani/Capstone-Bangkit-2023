@@ -24,8 +24,7 @@ const guestAddStories = async (req, res) => {
             return res.status(400).json({ error: true, message: "Photo is required" });
         }
 
-        // Here, you can process the photo, save it to storage, and get a URL
-        // For simplicity, let's assume you save it to a variable called photoURL
+
         const filename = `stories/${Date.now()}_${photo.originalname}`;
         const file = bucket.file(filename);
         const stream = file.createWriteStream({
@@ -43,8 +42,12 @@ const guestAddStories = async (req, res) => {
             // Get the public URL of the uploaded photo
             const photoURL = `gs://microbizmate.appspot.com${filename}`;
 
-            // Save the new story to the database
+            // Define a default UID for guest uploads
+            const defaultGuestUID = 'guest';
+
+            // Save the new story to the database with the default UID
             await db.collection('stories').add({
+                uid: defaultGuestUID,
                 description: description,
                 photoURL: photoURL,
                 lat: lat || null,
