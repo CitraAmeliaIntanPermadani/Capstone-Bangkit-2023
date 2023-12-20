@@ -59,18 +59,17 @@ const userAddStories = (async (req, res) => {
 
         stream.on('error', (err) => {
             console.error(err);
-            response(500, err, "Failed to upload photo", res);
+            res.status(500, err, "Failed to upload photo", res);
         });
 
         stream.on('finish', async () => {
             // Get the public URL of the uploaded photo
-            const photoURL = `gs://microbizmate.appspot.com${filename}`;
-
+        
             // Save the new story to the database
-            await db.collection('stories').add({
+            await db.collection('stories/').add({
                 uid: uid,
                 description: description,
-                photoURL: photoURL,
+                photoURL: filename,
                 lat: lat || null,
                 lon: lon || null,
                 createdAt: new Date(),

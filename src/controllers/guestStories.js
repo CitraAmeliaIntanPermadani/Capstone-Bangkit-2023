@@ -39,17 +39,13 @@ const guestAddStories = async (req, res) => {
         });
 
         stream.on('finish', async () => {
-            // Get the public URL of the uploaded photo
-            const photoURL = `gs://microbizmate.appspot.com${filename}`;
-
-            // Define a default UID for guest uploads
             const defaultGuestUID = 'guest';
 
             // Save the new story to the database with the default UID
             await db.collection('stories').add({
                 uid: defaultGuestUID,
                 description: description,
-                photoURL: photoURL,
+                photoURL: filename,
                 lat: lat || null,
                 lon: lon || null,
                 createdAt: new Date(),

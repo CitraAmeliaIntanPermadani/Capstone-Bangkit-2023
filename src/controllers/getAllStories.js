@@ -1,14 +1,12 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { db } = require('../config/firebase');
+const { db, bucket } = require('../config/firebase');
 
 const router = express.Router();
 
 // @desc Get All Stories
 // @route GET /stories
 // @access private (requires token)
-
-// ...
 
 const getAllStories = async (req, res) => {
     try {
@@ -37,7 +35,7 @@ const getAllStories = async (req, res) => {
             const location = parseInt(req.query.location) || 0;
 
             // Fetch stories based on location
-            let storiesRef = db.collection('stories');
+            let storiesRef = db.collection('stories/');
 
             if (location === 1) {
                 storiesRef = storiesRef.where('lat', '!=', null).where('lon', '!=', null);
@@ -62,7 +60,7 @@ const getAllStories = async (req, res) => {
                             id: doc.id,
                             name: userName,
                             description: data.description,
-                            photoUrl: data.photoURL,
+                            photoUrl: data.photoURL, // Include the photoURL field
                             createdAt: data.createdAt.toDate(),
                             lat: data.lat,
                             lon: data.lon
@@ -73,7 +71,7 @@ const getAllStories = async (req, res) => {
                             id: doc.id,
                             name: 'Unknown',
                             description: data.description,
-                            photoUrl: data.photoURL,
+                            photoUrl: data.photoURL, // Include the photoURL field
                             createdAt: data.createdAt.toDate(),
                             lat: data.lat,
                             lon: data.lon
